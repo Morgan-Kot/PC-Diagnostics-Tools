@@ -1,13 +1,3 @@
-/*
-PC Diagnostics Interactive CLI Tool
-Features:
-- Clean, high-contrast box-drawing layouts with clear visual hierarchy.
-- Screen clearing on each menu action and test run.
-- Crash-safe process listing sorting (handling NaN floating-point edge cases).
-- Debug Mode inspecting executable path, architecture, thread counts, memory limits, and WMI connectivity.
-- Loops cleanly until explicit exit.
-*/
-
 use colored::*;
 use serde::Deserialize;
 use std::cmp::Ordering;
@@ -274,7 +264,6 @@ fn show_tasks(sys: &System) {
 
     let mut processes: Vec<_> = sys.processes().values().collect();
 
-    // Safe float comparison to prevent crash on NaN values
     processes.sort_by(|a, b| {
         b.cpu_usage()
             .partial_cmp(&a.cpu_usage())
@@ -356,6 +345,9 @@ fn refresh_system(sys: &mut System) {
 }
 
 fn main() {
+    #[cfg(windows)]
+    let _ = colored::control::set_virtual_terminal(true);
+
     let mut sys = System::new_with_specifics(
         RefreshKind::new()
             .with_cpu(CpuRefreshKind::everything())
